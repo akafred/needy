@@ -42,5 +42,13 @@ test-discovery: prepare ## Run discovery scenarios
 test-registration: prepare ## Run registration scenarios
 	@$(GO_ENV) go test ./features -run TestFeatures
 
+test-report: prepare ## Run tests and generate HTML report
+	@echo "Running tests and generating report..."
+	@$(GO_ENV) GODOG_FORMAT=cucumber:report.json go test ./features -v || true
+	@if [ -f report.json ]; then \
+		echo "Test report generated: report.json"; \
+		echo "Install cucumber-html-reporter for HTML: npm install -g cucumber-html-reporter"; \
+	fi
+
 clean:
 	rm -rf bin .go
