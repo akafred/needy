@@ -2,18 +2,23 @@ package features
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
+	"time"
 
 	"github.com/cucumber/godog"
 )
 
 var lastOutput string
 var lastError error
+var ndadmCmd *exec.Cmd
 
 func TestFeatures(t *testing.T) {
 	suite := godog.TestSuite{
@@ -86,6 +91,29 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	sc.Step(`^the mailbox for "([^"]*)" should be reconnected$`, theMailboxForShouldBeReconnected)
 	sc.Step(`^all registrations should succeed$`, allRegistrationsShouldSucceed)
 	sc.Step(`^mailboxes for "([^"]*)", "([^"]*)", and "([^"]*)" should exist$`, mailboxesForShouldExist)
+
+	// Cleanup before each scenario
+	sc.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
+		// Clean up client ID file
+		os.Remove(".needy-client-id")
+		// Reset test state
+		networkDown = false
+		registrationResults = nil
+		lastOutput = ""
+		lastError = nil
+
+		// Start ndadm server if network should be up
+		if !networkDown {
+			startNdadmServer()
+		}
+		return ctx, nil
+	})
+
+	// Cleanup after each scenario
+	sc.After(func(ctx context.Context, sc *godog.Scenario, err error) (context.Context, error) {
+		stopNdadmServer()
+		return ctx, nil
+	})
 }
 
 func theNdCLIIsAvailable() error {
@@ -310,4 +338,28 @@ func allRegistrationsShouldSucceed() error {
 func mailboxesForShouldExist(agent1, agent2, agent3 string) error {
 	// For now, just verify all registrations succeeded
 	return allRegistrationsShouldSucceed()
+}
+
+// NATS server management
+func startNdadmServer() {
+	ndadmCmd = exec.Command("../bin/ndadm")
+	ndadmCmd.Stdout = os.Stdout
+	ndadmCmd.Stderr = os.Stderr
+
+	err := ndadmCmd.Start()
+	if err != nil {
+		log.Printf("Failed to start ndadm: %v", err)
+		return
+	}
+
+	// Give the server time to start
+	time.Sleep(500 * time.Millisecond)
+}
+
+func stopNdadmServer() {
+	if ndadmCmd != nil && ndadmCmd.Process != nil {
+		ndadmCmd.Process.Signal(syscall.SIGTERM)
+		ndadmCmd.Wait()
+		ndadmCmd = nil
+	}
 }
