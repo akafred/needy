@@ -22,3 +22,4 @@ Thumbs.db
 # Test outputs
 *.out
 *.test
+.needy-client-id

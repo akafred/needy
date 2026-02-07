@@ -40,7 +40,7 @@ test-discovery: prepare ## Run discovery scenarios
 	@$(GO_ENV) go test ./features -run TestFeatures/Learning_about_
 
 test-registration: prepare ## Run registration scenarios
-	@$(GO_ENV) go test ./features -run TestFeatures/Successful_registration
+	@$(GO_ENV) go test ./features -run TestFeatures
 
 clean:
 	rm -rf bin .go
