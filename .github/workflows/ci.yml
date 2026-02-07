@@ -16,21 +16,13 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: 'stable'
     
-    - name: Build binaries
-      run: |
-        go build -o nd ./cmd/nd
-        go build -o ndadm ./cmd/ndadm
+    - name: Build packages
+      run: go build ./...
     
     - name: Run Tests
       run: make test
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        files: ./coverage.out
-        fail_ci_if_error: false
 
   lint:
     runs-on: ubuntu-latest
@@ -40,9 +32,9 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: 'stable'
     
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@v4
+      uses: golangci/golangci-lint-action@v6
       with:
         version: latest
