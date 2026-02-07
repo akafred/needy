@@ -42,6 +42,9 @@ test-discovery: prepare ## Run discovery scenarios
 test-registration: prepare ## Run registration scenarios only
 	@$(GO_ENV) go test ./features -run 'TestFeatures/(Successful_registration|Registration_fails_when_network_is_down|Impersonation_is_prevented|Re-registration_by_same_client_succeeds|Registration_without_name_flag|Multiple_agents_can_register)'
 
+test-communication: prepare ## Run communication scenarios only
+	@$(GO_ENV) go test ./features -run 'TestFeatures/(Sending_a_need_and_receiving_it|Intent_must_precede_solution|Successful_solution_flow)'
+
 test-report: prepare ## Run tests and generate HTML report
 	@echo "Running tests and generating report..."
 	@$(GO_ENV) GODOG_FORMAT=cucumber:report.json go test ./features -v || true
