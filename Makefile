@@ -14,7 +14,7 @@ help: # Extracts make targets with doble-hash comments and prints them
 	done
 
 build: ## Build the nd and ndadm binaries
-	@mkdir -p bin
+	@mkdir -p bin .go/tmp .go/cache .go/mod
 	@$(GO_ENV) go build -o bin/nd ./cmd/nd
 	@$(GO_ENV) go build -o bin/ndadm ./cmd/ndadm
 
