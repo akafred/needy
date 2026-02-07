@@ -20,18 +20,16 @@ make release-check
 
 # Check for outdated dependencies
 echo "Checking for outdated dependencies..."
-OUTDATED=$(go list -u -m -f '{{if .Update}}{{.Path}}: {{.Version}} -> {{.Update.Version}}{{end}}' all || true)
-if [[ -n "$OUTDATED" ]]; then
-    echo "Warning: The following dependencies have updates available:"
-    echo "$OUTDATED"
-    read -p "Do you want to proceed with the release anyway? (y/N) " -n 1 -r
+./scripts/check_updates.sh
+UPDATES=$(go list -u -m -f '{{if .Update}}{{.Path}}{{end}}' all)
+if [[ -n "$UPDATES" ]]; then
+    echo ""
+    read -p "The above dependencies have updates available. Proceed anyway? (y/N) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Release cancelled. Please update dependencies and try again."
         exit 1
     fi
-else
-    echo "All dependencies are up to date."
 fi
 
 # Get current version
