@@ -14,15 +14,15 @@ help: # Extracts make targets with doble-hash comments and prints them
 	done
 
 build: ## Build the nd and ndadm binaries
-	mkdir -p bin
-	$(GO_ENV) go build -o bin/nd ./cmd/nd
-	$(GO_ENV) go build -o bin/ndadm ./cmd/ndadm
+	@mkdir -p bin
+	@$(GO_ENV) go build -o bin/nd ./cmd/nd
+	@$(GO_ENV) go build -o bin/ndadm ./cmd/ndadm
 
 fmt: ## Format all Go files
-	$(GO_ENV) go fmt ./...
+	@$(GO_ENV) go fmt ./...
 
 lint: ## Run go vet on all packages
-	$(GO_ENV) go vet ./...
+	@$(GO_ENV) go vet ./...
 
 prepare: build fmt lint install-hooks ## Prepare for testing
 
@@ -34,10 +34,10 @@ install-hooks: ## Install git hooks
 	@git config core.hooksPath .git/hooks
 
 test: prepare ## Run all tests
-	$(GO_ENV) go test ./features -v
+	@$(GO_ENV) go test ./features
 
 test-discovery: prepare ## Run discovery scenarios
-	$(GO_ENV) go test ./features -v -run TestFeatures/Learning_about_
+	@$(GO_ENV) go test ./features -run TestFeatures/Learning_about_
 
 clean:
 	rm -rf bin .go
