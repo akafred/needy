@@ -26,7 +26,7 @@ Feature: Complete Needy Workflow Tutorial
 
     # Phase 4: Announcing Intent to Help
     When AgentBob runs "nd send intent <need-id>"
-    Then AgentBob should see "Intent recorded"
+    Then AgentBob should see "Sent intent successfully"
     And the intent should be linked to the need
 
     # Phase 5: Providing a Solution

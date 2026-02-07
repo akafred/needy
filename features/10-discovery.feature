@@ -38,11 +38,14 @@ Feature: CLI discovery
 
   Scenario: Learning about the length of intent messages
     Given the client is registered
+    And there is a need
     When I use a to intent message that is too long
     Then the output should explain that intents should be short and not have payloads
 
   Scenario: Learning about the limited space for solution messages
     Given the client is registered
+    And there is a need
+    And I have issued a "intent" message
     When I use a to long solution message
     Then the output should explain that the solution message is too long and that it must contain a message and a payload
 

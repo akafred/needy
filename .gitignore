@@ -22,5 +22,6 @@ Thumbs.db
 # Test outputs
 *.out
 *.test
-.needy-client-id
+*.log
+.needy-client-id*
 .nats-data/

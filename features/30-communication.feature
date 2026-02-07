@@ -21,5 +21,5 @@ Feature: Agent Communication
     And a registered agent "AgentBob"
     And agent "AgentAlice" has sent a need "fix the bug"
     When agent "AgentBob" runs "nd send intent 'fix the bug'"
-    And agent "AgentBob" runs "nd send solution 'fixed it'"
+    And agent "AgentBob" runs "nd send solution 'fix the bug' 'fixed it'"
     Then the command should succeed

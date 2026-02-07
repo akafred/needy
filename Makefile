@@ -32,6 +32,7 @@ install-hooks: ## Install git hooks
 	@cp .githooks/pre-commit .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
 	@git config core.hooksPath .git/hooks
+	@echo "...done."
 
 test: prepare ## Run all tests
 	@$(GO_ENV) go test ./features
@@ -44,6 +45,9 @@ test-registration: prepare ## Run registration scenarios only
 
 test-communication: prepare ## Run communication scenarios only
 	@$(GO_ENV) go test ./features -run 'TestFeatures/(Sending_a_need_and_receiving_it|Intent_must_precede_solution|Successful_solution_flow)'
+
+test-tutorial: prepare ## Run tutorial scenario
+	@$(GO_ENV) go test -v ./features -run 'TestFeatures/Complete_collaboration_workflow'
 
 test-report: prepare ## Run tests and generate HTML report
 	@echo "Running tests and generating report..."
