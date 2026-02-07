@@ -1,0 +1,71 @@
+version: 2
+project_name: needy
+
+builds:
+  - id: nd
+    binary: nd
+    main: ./cmd/nd/main.go
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+  - id: ndadm
+    binary: ndadm
+    main: ./cmd/ndadm/main.go
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - id: needy
+    builds:
+      - nd
+      - ndadm
+    name_template: "needy_{{ .Os }}_{{ .Arch }}"
+    format: tar.gz
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+
+brews:
+  - name: needy
+    ids:
+      - needy
+    repository:
+      owner: akafred
+      name: homebrew-needy
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/akafred/needy"
+    description: "AI Agent Coordination System using the Needs Pattern"
+    license: "MIT"
+    install: |
+      bin.install "nd"
+      bin.install "ndadm"
+

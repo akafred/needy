@@ -59,3 +59,17 @@ test-report: prepare ## Run tests and generate HTML report
 
 clean:
 	rm -rf bin .go
+
+release-check: prepare ## Run all checks required for a release (fmt, lint, test, build, goreleaser check)
+	@echo "Running release checks..."
+	@$(MAKE) fmt
+	@$(MAKE) lint
+	@$(MAKE) test
+	@$(MAKE) build
+	@if command -v goreleaser >/dev/null 2>&1; then \
+		echo "Running goreleaser check..."; \
+		goreleaser check; \
+	else \
+		echo "goreleaser not installed, skipping check"; \
+	fi
+	@echo "All release checks passed!"
