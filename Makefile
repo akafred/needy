@@ -39,8 +39,8 @@ test: prepare ## Run all tests
 test-discovery: prepare ## Run discovery scenarios
 	@$(GO_ENV) go test ./features -run TestFeatures/Learning_about_
 
-test-registration: prepare ## Run registration scenarios
-	@$(GO_ENV) go test ./features -run TestFeatures
+test-registration: prepare ## Run registration scenarios only
+	@$(GO_ENV) go test ./features -run 'TestFeatures/(Successful_registration|Registration_fails_when_network_is_down|Impersonation_is_prevented|Re-registration_by_same_client_succeeds|Registration_without_name_flag|Multiple_agents_can_register)'
 
 test-report: prepare ## Run tests and generate HTML report
 	@echo "Running tests and generating report..."
