@@ -257,8 +257,10 @@ func runCmd(path string, args ...string) error {
 
 // Registration step functions
 func theNetworkIsUp() error {
-	// For now, we'll assume the network is always up
-	// In the future, this could check if ndadm is running
+	// Start the server if it's not already running
+	if ndadmCmd == nil || ndadmCmd.Process == nil {
+		startNdadmServer()
+	}
 	return nil
 }
 
@@ -298,6 +300,8 @@ var registrationResults []error
 
 func theNetworkIsNotRunning() error {
 	networkDown = true
+	// Stop the server to simulate network being down
+	stopNdadmServer()
 	return nil
 }
 
