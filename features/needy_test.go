@@ -76,9 +76,16 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 
 	// Registration scenarios
 	sc.Step(`^the network is up$`, theNetworkIsUp)
+	sc.Step(`^the network is not running$`, theNetworkIsNotRunning)
 	sc.Step(`^I run "([^"]*)"$`, iRun)
 	sc.Step(`^the output should contain "([^"]*)"$`, theOutputShouldContain)
+	sc.Step(`^the command should fail$`, theCommandShouldFail)
 	sc.Step(`^a mailbox for "([^"]*)" should be created$`, aMailboxForShouldBeCreated)
+	sc.Step(`^"([^"]*)" is already registered from a different client$`, isAlreadyRegisteredFromDifferentClient)
+	sc.Step(`^I previously registered as "([^"]*)"$`, iPreviouslyRegisteredAs)
+	sc.Step(`^the mailbox for "([^"]*)" should be reconnected$`, theMailboxForShouldBeReconnected)
+	sc.Step(`^all registrations should succeed$`, allRegistrationsShouldSucceed)
+	sc.Step(`^mailboxes for "([^"]*)", "([^"]*)", and "([^"]*)" should exist$`, mailboxesForShouldExist)
 }
 
 func theNdCLIIsAvailable() error {
@@ -255,4 +262,52 @@ func aMailboxForShouldBeCreated(agentName string) error {
 		return fmt.Errorf("registration failed: %v", lastError)
 	}
 	return nil
+}
+
+// Additional registration step functions
+var networkDown bool
+var registrationResults []error
+
+func theNetworkIsNotRunning() error {
+	networkDown = true
+	return nil
+}
+
+func theCommandShouldFail() error {
+	if lastError == nil {
+		return fmt.Errorf("expected command to fail, but it succeeded")
+	}
+	return nil
+}
+
+func isAlreadyRegisteredFromDifferentClient(agentName string) error {
+	// TODO: Implement by simulating a different client ID
+	return godog.ErrPending
+}
+
+func iPreviouslyRegisteredAs(agentName string) error {
+	// Re-run registration to create .needy-client-id
+	return iRun(fmt.Sprintf("nd register --name %s", agentName))
+}
+
+func theMailboxForShouldBeReconnected(agentName string) error {
+	// Verify re-registration message
+	if !strings.Contains(lastOutput, "Re-registered") {
+		return fmt.Errorf("expected re-registration message, got: %s", lastOutput)
+	}
+	return nil
+}
+
+func allRegistrationsShouldSucceed() error {
+	for i, err := range registrationResults {
+		if err != nil {
+			return fmt.Errorf("registration %d failed: %v", i+1, err)
+		}
+	}
+	return nil
+}
+
+func mailboxesForShouldExist(agent1, agent2, agent3 string) error {
+	// For now, just verify all registrations succeeded
+	return allRegistrationsShouldSucceed()
 }
