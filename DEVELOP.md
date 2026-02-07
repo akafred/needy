@@ -205,7 +205,11 @@ NATS_DEBUG=true ./ndadm start
 
 ## Release Process
 
-Releases are automated via GitHub Actions:
+## Release Process
+
+Releases are automated via GitHub Actions using GoReleaser.
+
+**Prerequisite**: You must configure a `GH_PAT` secret. See **[Release Setup Guide](docs/guides/release-setup.md)**.
 
 1. Tag a version: `git tag v1.0.0`
 2. Push the tag: `git push origin v1.0.0`
