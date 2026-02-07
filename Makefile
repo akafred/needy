@@ -73,3 +73,6 @@ release-check: prepare ## Run all checks required for a release (fmt, lint, test
 		echo "goreleaser not installed, skipping check"; \
 	fi
 	@echo "All release checks passed!"
+
+release: ## Interactive release wizard (bump version, tag, push)
+	@./scripts/release.sh
