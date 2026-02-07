@@ -73,6 +73,12 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	// Learning about the listening with timeout
 	sc.Step(`^I run the `+"`"+`nd receive`+"`"+` command and there is nothing to receive$`, iRunTheNdReceiveCommandWithNothing)
 	sc.Step(`^the output should explain the mechanics of listening with a timeout$`, theOutputShouldExplainTimeoutMechanics)
+
+	// Registration scenarios
+	sc.Step(`^the network is up$`, theNetworkIsUp)
+	sc.Step(`^I run "([^"]*)"$`, iRun)
+	sc.Step(`^the output should contain "([^"]*)"$`, theOutputShouldContain)
+	sc.Step(`^a mailbox for "([^"]*)" should be created$`, aMailboxForShouldBeCreated)
 }
 
 func theNdCLIIsAvailable() error {
@@ -211,5 +217,42 @@ func runCmd(path string, args ...string) error {
 	err := cmd.Run()
 	lastError = err
 	lastOutput = out.String()
+	return nil
+}
+
+// Registration step functions
+func theNetworkIsUp() error {
+	// For now, we'll assume the network is always up
+	// In the future, this could check if ndadm is running
+	return nil
+}
+
+func iRun(cmdLine string) error {
+	parts := strings.Fields(cmdLine)
+	if len(parts) == 0 {
+		return fmt.Errorf("empty command")
+	}
+
+	// Replace "nd" with the actual binary path
+	if parts[0] == "nd" {
+		parts[0] = "../bin/nd"
+	}
+
+	return runCmd(parts[0], parts[1:]...)
+}
+
+func theOutputShouldContain(expected string) error {
+	if !strings.Contains(lastOutput, expected) {
+		return fmt.Errorf("expected output to contain %q, but got: %s", expected, lastOutput)
+	}
+	return nil
+}
+
+func aMailboxForShouldBeCreated(agentName string) error {
+	// For now, we'll just check that the command succeeded
+	// In the future, this could verify the mailbox exists in the system
+	if lastError != nil {
+		return fmt.Errorf("registration failed: %v", lastError)
+	}
 	return nil
 }
