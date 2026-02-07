@@ -1,0 +1,24 @@
+# Binaries
+bin/
+nd
+ndadm
+
+# Local Go environment
+.go/
+vendor/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+
+# Environment files
+.env
+.env.local
+
+# Test outputs
+*.out
+*.test
