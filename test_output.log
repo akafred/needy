@@ -1,0 +1,126 @@
+mkdir -p bin
+GOCACHE=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/cache GOTMPDIR=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/tmp GOMODCACHE=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/mod GOSUMDB=off go build -o bin/nd ./cmd/nd
+GOCACHE=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/cache GOTMPDIR=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/tmp GOMODCACHE=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/mod GOSUMDB=off go build -o bin/ndadm ./cmd/ndadm
+GOCACHE=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/cache GOTMPDIR=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/tmp GOMODCACHE=/Users/kjetiljd/Projects/akafred/multiagent/needy/.go/mod GOSUMDB=off go test ./features -v -run TestFeatures/Learning_about_
+=== RUN   TestFeatures
+[1;37mFeature:[0m CLI discovery
+  As an AI agent
+  I need to understand how the CLI works
+  So that I can register and use the system
+=== RUN   TestFeatures/Learning_about_registration
+
+  [1;37mScenario:[0m Learning about registration                          [1;30m# 10-discovery.feature:6[0m
+    [32mGiven[0m [32mthe `nd` CLI is available[0m                              [1;30m# needy_test.go:36 -> github.com/akafred/needy/features.theNdCLIIsAvailable[0m
+    [32mAnd[0m [32mthe client in not registered[0m                             [1;30m# needy_test.go:37 -> github.com/akafred/needy/features.theClientInNotRegistered[0m
+    [32mWhen[0m [32mI run the `nd` command[0m                                  [1;30m# needy_test.go:38 -> github.com/akafred/needy/features.iRunTheNdCommand[0m
+    [32mThen[0m [32mthe output should explain that registration is required[0m [1;30m# needy_test.go:39 -> github.com/akafred/needy/features.theOutputShouldExplainThatRegistrationIsRequired[0m
+    [32mAnd[0m [32mshow the usage for the "register" command[0m                [1;30m# needy_test.go:40 -> github.com/akafred/needy/features.showTheUsageForTheCommand[0m
+=== RUN   TestFeatures/Learning_about_sending
+
+  [1;37mScenario:[0m Learning about sending                                                 [1;30m# 10-discovery.feature:13[0m
+    [32mGiven[0m [32mthe client is registered[0m                                                 [1;30m# needy_test.go:43 -> github.com/akafred/needy/features.theClientIsRegistered[0m
+    [32mWhen[0m [32mI run the `nd register` command[0m                                           [1;30m# needy_test.go:44 -> github.com/akafred/needy/features.iRunTheNdRegisterCommand[0m
+    [32mAnd[0m [32mregistration is successful[0m                                                 [1;30m# needy_test.go:45 -> github.com/akafred/needy/features.registrationIsSuccessful[0m
+    [32mThen[0m [32mthe output should explain the mechanics of sending and receiving messages[0m [1;30m# needy_test.go:46 -> github.com/akafred/needy/features.theOutputShouldExplainTheMechanicsOfSendingAndReceiving[0m
+=== RUN   TestFeatures/Learning_about_getting_payloads
+
+  [1;37mScenario:[0m Learning about getting payloads                       [1;30m# 10-discovery.feature:19[0m
+    [32mGiven[0m [32mthere is a need message to receive[0m                      [1;30m# needy_test.go:49 -> github.com/akafred/needy/features.thereIsANeedMessageToReceive[0m
+    [32mWhen[0m [32mI run the `nd receive` command[0m                           [1;30m# needy_test.go:50 -> github.com/akafred/needy/features.iRunTheNdReceiveCommand[0m
+    [33mThen[0m [33mthe output should explain the usage of the "get" command[0m
+    suite.go:640: step is undefined: the output should explain the usage of the "get" command
+=== RUN   TestFeatures/Learning_about_the_workflow_of_intents
+
+  [1;37mScenario:[0m Learning about the workflow of intents                                                              [1;30m# 10-discovery.feature:24[0m
+    [32mGiven[0m [32mthere is a need message to receive[0m                                                                    [1;30m# needy_test.go:49 -> github.com/akafred/needy/features.thereIsANeedMessageToReceive[0m
+    [32mWhen[0m [32mI run the `nd receive` command[0m                                                                         [1;30m# needy_test.go:50 -> github.com/akafred/needy/features.iRunTheNdReceiveCommand[0m
+    [33mThen[0m [33mthe output should explain that the agent must issue a "intent" message if it wants to offer a solution[0m
+    suite.go:640: step is undefined: the output should explain that the agent must issue a "intent" message if it wants to offer a solution
+=== RUN   TestFeatures/Learning_about_the_workflow_of_solutions
+
+  [1;37mScenario:[0m Learning about the workflow of solutions       [1;30m# 10-discovery.feature:29[0m
+    [32mGiven[0m [32mthere is a need[0m                                  [1;30m# needy_test.go:57 -> github.com/akafred/needy/features.thereIsANeed[0m
+    [32mWhen[0m [32mI have issued a "intent" message[0m                  [1;30m# needy_test.go:58 -> github.com/akafred/needy/features.iHaveIssuedAIntentMessage[0m
+    [33mThen[0m [33mthe output should explain how to offer a solution[0m
+    suite.go:640: step is undefined: the output should explain how to offer a solution
+=== RUN   TestFeatures/Learning_about_the_limited_space_for_messages
+
+  [1;37mScenario:[0m Learning about the limited space for messages                                                        [1;30m# 10-discovery.feature:34[0m
+    [32mGiven[0m [32mthe client is registered[0m                                                                               [1;30m# needy_test.go:43 -> github.com/akafred/needy/features.theClientIsRegistered[0m
+    [32mWhen[0m [32mI use a to long need message with a payload[0m                                                             [1;30m# needy_test.go:62 -> github.com/akafred/needy/features.iUseAToLongNeedMessageWithAPayload[0m
+    [32mThen[0m [32mthe output should explain that the message is too long and that it must contain a message and a payload[0m [1;30m# needy_test.go:63 -> github.com/akafred/needy/features.theOutputShouldExplainThatTheMessageIsTooLong[0m
+=== RUN   TestFeatures/Learning_about_the_length_of_intent_messages
+
+  [1;37mScenario:[0m Learning about the length of intent messages                              [1;30m# 10-discovery.feature:39[0m
+    [32mGiven[0m [32mthe client is registered[0m                                                    [1;30m# needy_test.go:43 -> github.com/akafred/needy/features.theClientIsRegistered[0m
+    [33mWhen[0m [33mI use a to intent message[0m
+    [36mThen[0m [36mthe output should explain that intents should be short and not have payloads[0m [1;30m# needy_test.go:67 -> github.com/akafred/needy/features.theOutputShouldExplainIntentPolicy[0m
+    suite.go:640: step is undefined: I use a to intent message
+=== RUN   TestFeatures/Learning_about_the_limited_space_for_solution_messages
+
+  [1;37mScenario:[0m Learning about the limited space for solution messages                                                        [1;30m# 10-discovery.feature:44[0m
+    [32mGiven[0m [32mthe client is registered[0m                                                                                        [1;30m# needy_test.go:43 -> github.com/akafred/needy/features.theClientIsRegistered[0m
+    [32mWhen[0m [32mI use a to long solution message[0m                                                                                 [1;30m# needy_test.go:70 -> github.com/akafred/needy/features.iUseAToLongSolutionMessage[0m
+    [32mThen[0m [32mthe output should explain that the solution message is too long and that it must contain a message and a payload[0m [1;30m# needy_test.go:71 -> github.com/akafred/needy/features.theOutputShouldExplainThatTheMessageIsTooLong[0m
+=== RUN   TestFeatures/Learning_about_the_listening_with_timeout
+
+  [1;37mScenario:[0m Learning about the listening with timeout                        [1;30m# 10-discovery.feature:49[0m
+    [32mGiven[0m [32mthe client is registered[0m                                           [1;30m# needy_test.go:43 -> github.com/akafred/needy/features.theClientIsRegistered[0m
+    [32mWhen[0m [32mI run the `nd receive` command and there is nothing to receive[0m      [1;30m# needy_test.go:74 -> github.com/akafred/needy/features.iRunTheNdReceiveCommandWithNothing[0m
+    [32mThen[0m [32mthe output should explain the mechanics of listening with a timeout[0m [1;30m# needy_test.go:75 -> github.com/akafred/needy/features.theOutputShouldExplainTimeoutMechanics[0m
+
+[1;37mFeature:[0m Agent Registration
+  As an AI agent
+  I want to register on the network
+  So that I can receive messages and offer solutions
+
+[1;37mFeature:[0m Agent Communication
+  As an AI agent
+  I want to send needs and receive solutions
+  So that I can collaborate with other agents
+
+13 scenarios ([32m5 passed[0m, [33m8 undefined[0m)
+30 steps ([32m25 passed[0m, [33m4 undefined[0m, [36m1 skipped[0m)
+84.526084ms
+
+[33mYou can implement step definitions for undefined steps with these snippets:[0m
+[33m
+func iUseAToIntentMessage() error {
+	return godog.ErrPending
+}
+
+func theOutputShouldExplainHowToOfferASolution() error {
+	return godog.ErrPending
+}
+
+func theOutputShouldExplainThatTheAgentMustIssueAMessageIfItWantsToOfferASolution(arg1 string) error {
+	return godog.ErrPending
+}
+
+func theOutputShouldExplainTheUsageOfTheCommand(arg1 string) error {
+	return godog.ErrPending
+}
+
+func InitializeScenario(ctx *godog.ScenarioContext) {
+	ctx.Step(`^I use a to intent message$`, iUseAToIntentMessage)
+	ctx.Step(`^the output should explain how to offer a solution$`, theOutputShouldExplainHowToOfferASolution)
+	ctx.Step(`^the output should explain that the agent must issue a "([^"]*)" message if it wants to offer a solution$`, theOutputShouldExplainThatTheAgentMustIssueAMessageIfItWantsToOfferASolution)
+	ctx.Step(`^the output should explain the usage of the "([^"]*)" command$`, theOutputShouldExplainTheUsageOfTheCommand)
+}
+[0m
+=== NAME  TestFeatures
+    needy_test.go:30: non-zero status returned, failed to run feature tests
+--- FAIL: TestFeatures (0.09s)
+    --- PASS: TestFeatures/Learning_about_registration (0.06s)
+    --- PASS: TestFeatures/Learning_about_sending (0.00s)
+    --- FAIL: TestFeatures/Learning_about_getting_payloads (0.00s)
+    --- FAIL: TestFeatures/Learning_about_the_workflow_of_intents (0.00s)
+    --- FAIL: TestFeatures/Learning_about_the_workflow_of_solutions (0.00s)
+    --- PASS: TestFeatures/Learning_about_the_limited_space_for_messages (0.00s)
+    --- FAIL: TestFeatures/Learning_about_the_length_of_intent_messages (0.00s)
+    --- PASS: TestFeatures/Learning_about_the_limited_space_for_solution_messages (0.00s)
+    --- PASS: TestFeatures/Learning_about_the_listening_with_timeout (0.00s)
+FAIL
+FAIL	github.com/akafred/needy/features	0.349s
+FAIL
+make: *** [test-discovery] Error 1

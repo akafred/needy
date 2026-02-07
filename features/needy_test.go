@@ -48,22 +48,22 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	// Learning about getting payloads
 	sc.Step(`^there is a need message to receive$`, thereIsANeedMessageToReceive)
 	sc.Step(`^I run the `+"`"+`nd receive`+"`"+` command$`, iRunTheNdReceiveCommand)
-	sc.Step(`^the output should explain the usage of the "get" command$`, theOutputShouldExplainTheUsageOfTheGetCommand)
+	sc.Step(`^the output should explain the usage of the "get" command and include the id of the message$`, theOutputShouldExplainTheUsageOfTheGetCommand)
 
 	// Learning about the workflow of intents
-	sc.Step(`^the output should explain that the agent must issue a "intent" message if it wants to offer a solution$`, theOutputShouldExplainTheWorkflowOfIntents)
+	sc.Step(`^the output should explain that the agent must issue a "intent" message referring to the id of the need if it wants to offer a solution$`, theOutputShouldExplainTheWorkflowOfIntents)
 
 	// Learning about the workflow of solutions
 	sc.Step(`^there is a need$`, thereIsANeed)
 	sc.Step(`^I have issued a "intent" message$`, iHaveIssuedAIntentMessage)
-	sc.Step(`^the output should explain how to offer a solution$`, theOutputShouldExplainHowToOfferASolution)
+	sc.Step(`^the output should explain how to offer a solution by issuing a "solution" message referring to the id of the need$`, theOutputShouldExplainHowToOfferASolution)
 
 	// Learning about the limited space for messages (Need)
 	sc.Step(`^I use a to long need message with a payload$`, iUseAToLongNeedMessageWithAPayload)
 	sc.Step(`^the output should explain that the message is too long and that it must contain a message and a payload$`, theOutputShouldExplainThatTheMessageIsTooLong)
 
-	// Learning about the limited space for intent messages
-	sc.Step(`^I use a to intent message$`, iUseAToLongIntentMessage)
+	// Learning about the length of intent messages
+	sc.Step(`^I use a to intent message that is too long$`, iUseAToLongIntentMessage)
 	sc.Step(`^the output should explain that intents should be short and not have payloads$`, theOutputShouldExplainIntentPolicy)
 
 	// Learning about the limited space for solution messages
@@ -130,15 +130,15 @@ func iRunTheNdReceiveCommand() error {
 }
 
 func theOutputShouldExplainTheUsageOfTheGetCommand() error {
-	if !strings.Contains(lastOutput, "get") {
-		return fmt.Errorf("expected output to explain 'get' command, but got: %s", lastOutput)
+	if !strings.Contains(lastOutput, "get") || !strings.Contains(lastOutput, "123") {
+		return fmt.Errorf("expected output to explain 'get' command and include an ID, but got: %s", lastOutput)
 	}
 	return nil
 }
 
 func theOutputShouldExplainTheWorkflowOfIntents() error {
-	if !strings.Contains(lastOutput, "intent") {
-		return fmt.Errorf("expected output to explain 'intent' workflow, but got: %s", lastOutput)
+	if !strings.Contains(lastOutput, "intent") || !strings.Contains(lastOutput, "id") {
+		return fmt.Errorf("expected output to explain 'intent' workflow with ID reference, but got: %s", lastOutput)
 	}
 	return nil
 }
@@ -150,8 +150,8 @@ func iHaveIssuedAIntentMessage() error {
 }
 
 func theOutputShouldExplainHowToOfferASolution() error {
-	if !strings.Contains(lastOutput, "solution") {
-		return fmt.Errorf("expected output to explain 'solution' workflow, but got: %s", lastOutput)
+	if !strings.Contains(lastOutput, "solution") || !strings.Contains(lastOutput, "id") {
+		return fmt.Errorf("expected output to explain 'solution' workflow with ID reference, but got: %s", lastOutput)
 	}
 	return nil
 }

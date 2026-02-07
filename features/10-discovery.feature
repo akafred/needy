@@ -19,17 +19,17 @@ Feature: CLI discovery
   Scenario: Learning about getting payloads
     Given there is a need message to receive
     When I run the `nd receive` command
-    Then the output should explain the usage of the "get" command
+    Then the output should explain the usage of the "get" command and include the id of the message
 
   Scenario: Learning about the workflow of intents
     Given there is a need message to receive
     When I run the `nd receive` command
-    Then the output should explain that the agent must issue a "intent" message if it wants to offer a solution
+    Then the output should explain that the agent must issue a "intent" message referring to the id of the need if it wants to offer a solution
 
   Scenario: Learning about the workflow of solutions
     Given there is a need 
     When I have issued a "intent" message
-    Then the output should explain how to offer a solution
+    Then the output should explain how to offer a solution by issuing a "solution" message referring to the id of the need
 
   Scenario: Learning about the limited space for messages
     Given the client is registered
@@ -38,7 +38,7 @@ Feature: CLI discovery
 
   Scenario: Learning about the length of intent messages
     Given the client is registered
-    When I use a to intent message
+    When I use a to intent message that is too long
     Then the output should explain that intents should be short and not have payloads
 
   Scenario: Learning about the limited space for solution messages
