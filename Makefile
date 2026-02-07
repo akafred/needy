@@ -76,3 +76,7 @@ release-check: prepare ## Run all checks required for a release (fmt, lint, test
 
 release: ## Interactive release wizard (bump version, tag, push)
 	@./scripts/release.sh
+
+check-updates: ## Check for outdated Go dependencies
+	@echo "Checking for outdated dependencies..."
+	@go list -u -m -f '{{if .Update}}{{.Path}}: {{.Version}} -> {{.Update.Version}}{{end}}' all
