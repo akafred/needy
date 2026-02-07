@@ -18,10 +18,25 @@ build: ## Build the nd and ndadm binaries
 	$(GO_ENV) go build -o bin/nd ./cmd/nd
 	$(GO_ENV) go build -o bin/ndadm ./cmd/ndadm
 
-test: build ## Run all tests
+fmt: ## Format all Go files
+	$(GO_ENV) go fmt ./...
+
+lint: ## Run go vet on all packages
+	$(GO_ENV) go vet ./...
+
+prepare: build fmt lint install-hooks ## Prepare for testing
+
+install-hooks: ## Install git hooks
+	@echo "Installing git hooks..."
+	@mkdir -p .git/hooks
+	@cp .githooks/pre-commit .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@git config core.hooksPath .git/hooks
+
+test: prepare ## Run all tests
 	$(GO_ENV) go test ./features -v
 
-test-discovery: build ## Run discovery scenarios
+test-discovery: prepare ## Run discovery scenarios
 	$(GO_ENV) go test ./features -v -run TestFeatures/Learning_about_
 
 clean:

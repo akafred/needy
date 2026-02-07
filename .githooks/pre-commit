@@ -1,0 +1,14 @@
+#!/bin/bash
+# Pre-commit hook: Runs make prepare before every commit
+
+echo "--- Running pre-commit hooks (make prepare) ---"
+make prepare
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+  echo "--- Pre-commit hooks FAILED ---"
+  exit 1
+fi
+
+echo "--- Pre-commit hooks PASSED ---"
+exit 0
