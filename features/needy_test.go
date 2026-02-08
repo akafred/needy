@@ -38,7 +38,7 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 		// Clean up client ID files
 		files, _ := filepath.Glob(".needy-client-id*")
 		for _, f := range files {
-			os.Remove(f)
+			_ = os.Remove(f)
 		}
 		// Clean up .nats-data with retries
 		for i := 0; i < 10; i++ {

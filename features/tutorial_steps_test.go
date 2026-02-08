@@ -51,12 +51,12 @@ func agentRegistersWith(agent, command string) error {
 
 	// Backup existing ID globally if present
 	if _, err := os.Stat(".needy-client-id"); err == nil {
-		os.Rename(".needy-client-id", ".needy-client-id.bak")
-		defer os.Rename(".needy-client-id.bak", ".needy-client-id")
+		_ = os.Rename(".needy-client-id", ".needy-client-id.bak")
+		defer func() { _ = os.Rename(".needy-client-id.bak", ".needy-client-id") }()
 	}
 
 	// Clean slate for new registration
-	os.Remove(".needy-client-id")
+	_ = os.Remove(".needy-client-id")
 
 	// Run command via runCmd (assuming no tricky quotes in register command)
 	fullCmd := strings.Replace(command, "nd ", "../bin/nd ", 1)
@@ -71,7 +71,7 @@ func agentRegistersWith(agent, command string) error {
 
 	// Save new ID for this agent
 	if _, err := os.Stat(".needy-client-id"); err == nil {
-		os.Rename(".needy-client-id", fmt.Sprintf(".needy-client-id.%s", agentName))
+		_ = os.Rename(".needy-client-id", fmt.Sprintf(".needy-client-id.%s", agentName))
 	} else {
 		return fmt.Errorf("registration seemed to fail, no .needy-client-id file created")
 	}

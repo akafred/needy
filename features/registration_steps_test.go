@@ -85,12 +85,8 @@ func isAlreadyRegisteredFromDifferentClient(agentName string) error {
 		return fmt.Errorf("failed to register agent initially: %v", err)
 	}
 
-	// Now simulate a different client by replacing the client ID file
 	differentClientID := "00000000-0000-0000-0000-000000000000"
-	err = os.WriteFile(".needy-client-id", []byte(differentClientID), 0600)
-	if err != nil {
-		return fmt.Errorf("failed to create different client ID: %v", err)
-	}
+	_ = os.WriteFile(".needy-client-id", []byte(differentClientID), 0600)
 
 	return nil
 }

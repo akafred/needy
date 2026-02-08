@@ -115,13 +115,13 @@ func thereIsANeed() error {
 	}
 
 	// Send need
-	runCmd("../bin/nd", "send", "need", "discovery need")
+	_ = runCmd("../bin/nd", "send", "need", "discovery need")
 	if lastError != nil {
 		return fmt.Errorf("failed to send need: %s", lastOutput)
 	}
 
 	// Receive to get ID
-	runCmd("../bin/nd", "receive")
+	_ = runCmd("../bin/nd", "receive")
 	if lastError != nil {
 		return fmt.Errorf("failed to receive need: %s", lastOutput)
 	}
@@ -211,14 +211,14 @@ func agentRunsCommand(agentName, command string) error {
 
 	// Backup current ID
 	if _, err := os.Stat(".needy-client-id"); err == nil {
-		os.Rename(".needy-client-id", ".needy-client-id.bak")
-		defer os.Rename(".needy-client-id.bak", ".needy-client-id")
+		_ = os.Rename(".needy-client-id", ".needy-client-id.bak")
+		defer func() { _ = os.Rename(".needy-client-id.bak", ".needy-client-id") }()
 	}
 
 	// Copy target ID
 	input, _ := os.ReadFile(targetIDFile)
-	os.WriteFile(".needy-client-id", input, 0600)
-	defer os.Remove(".needy-client-id")
+	_ = os.WriteFile(".needy-client-id", input, 0600)
+	defer func() { _ = os.Remove(".needy-client-id") }()
 
 	// Execute
 	fullCmd := strings.Replace(command, "nd ", "../bin/nd ", 1)
@@ -269,15 +269,15 @@ func iAmRegisteredAs(name string) error {
 
 func anotherAgentIsRegistered(name string) error {
 	if _, err := os.Stat(".needy-client-id"); err == nil {
-		os.Rename(".needy-client-id", ".needy-client-id.primary")
+		_ = os.Rename(".needy-client-id", ".needy-client-id.primary")
 	}
 	defer func() {
 		if _, err := os.Stat(".needy-client-id.primary"); err == nil {
-			os.Rename(".needy-client-id.primary", ".needy-client-id")
+			_ = os.Rename(".needy-client-id.primary", ".needy-client-id")
 		}
 	}()
 
-	os.Remove(".needy-client-id")
+	_ = os.Remove(".needy-client-id")
 
 	cmd := exec.Command("../bin/nd", "register", "--name", name)
 	if output, err := cmd.CombinedOutput(); err != nil {

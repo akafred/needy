@@ -37,8 +37,8 @@ func runCmd(path string, args ...string) error {
 
 func startNdadmServer() {
 	// Aggressively kill any existing ndadm or process on 4222
-	exec.Command("pkill", "ndadm").Run()
-	exec.Command("sh", "-c", "lsof -ti :4222 | xargs kill -9").Run()
+	_ = exec.Command("pkill", "ndadm").Run()
+	_ = exec.Command("sh", "-c", "lsof -ti :4222 | xargs kill -9").Run()
 
 	// Wait for port to be free
 	waitForPortFree(4222)
@@ -92,7 +92,7 @@ func waitForPortFree(port int) {
 			// Connection refused means port is free
 			return
 		}
-		conn.Close()
+		_ = conn.Close()
 		time.Sleep(100 * time.Millisecond)
 	}
 	log.Printf("Warning: Port %d did not become free within 5s", port)
@@ -100,8 +100,8 @@ func waitForPortFree(port int) {
 
 func stopNdadmServer() {
 	if ndadmCmd != nil && ndadmCmd.Process != nil {
-		ndadmCmd.Process.Signal(syscall.SIGTERM)
-		ndadmCmd.Wait()
+		_ = ndadmCmd.Process.Signal(syscall.SIGTERM)
+		_ = ndadmCmd.Wait()
 		ndadmCmd = nil
 	}
 }
