@@ -86,23 +86,16 @@ func iRunTheNdReceiveCommand() error {
 }
 
 func theOutputShouldExplainTheUsageOfTheGetCommand() error {
-	// The CLI output currently doesn't show "get" as we haven't implemented it fully or updated the help text for it deeply.
-	// But the test expects it.
-	// For now, checks if ANY output is there.
-	// "receive" output for empty messages is empty list?
-	// The original test said "include the id of the message".
-	// Since we don't have messages yet in this walkthrough step, maybe we skip strict checking or adjust?
-	// Actually, `nd receive` just lists messages.
-	// Let's relax this check or ensure `nd receive` prints help if no messages?
-	// `nd receive` prints nothing if no messages.
-	// The walkthrough feature implies a tutorial flow where messages might be pre-seeded?
-	// We'll leave it as is for now and see if tests pass.
-	// If the test step expects "get", we might need to add that to `nd receive` help or printed info.
+	if !strings.Contains(lastOutput, "nd get") {
+		return fmt.Errorf("expected output to explain 'nd get' usage, but got: %s", lastOutput)
+	}
 	return nil
 }
 
 func theOutputShouldExplainTheWorkflowOfIntents() error {
-	// Placeholder
+	if !strings.Contains(lastOutput, "intent") {
+		return fmt.Errorf("expected output to explain intent workflow, but got: %s", lastOutput)
+	}
 	return nil
 }
 
@@ -138,7 +131,28 @@ func thereIsANeed() error {
 }
 
 func thereIsANeedMessageToReceive() error {
-	return thereIsANeed()
+	// Register the discovery agent
+	if err := theClientIsRegistered(); err != nil {
+		return err
+	}
+
+	// Register a helper agent to send the need
+	_ = os.Rename(".needy-client-id", ".needy-client-id.DiscoveryAgent")
+	_ = os.Remove(".needy-client-id")
+	_ = runCmd("../bin/nd", "register", "--name", "HelperAgent")
+	if lastError != nil {
+		return fmt.Errorf("failed to register helper: %s", lastOutput)
+	}
+
+	// Send the need as HelperAgent
+	_ = runCmd("../bin/nd", "send", "need", "discovery need")
+	if lastError != nil {
+		return fmt.Errorf("failed to send need: %s", lastOutput)
+	}
+
+	// Switch back to DiscoveryAgent so nd receive will see the unread need
+	_ = os.Remove(".needy-client-id")
+	return os.Rename(".needy-client-id.DiscoveryAgent", ".needy-client-id")
 }
 
 func iHaveIssuedAIntentMessage() error {
@@ -149,6 +163,9 @@ func iHaveIssuedAIntentMessage() error {
 }
 
 func theOutputShouldExplainHowToOfferASolution() error {
+	if !strings.Contains(lastOutput, "solution") {
+		return fmt.Errorf("expected output to explain how to offer a solution, but got: %s", lastOutput)
+	}
 	return nil
 }
 
@@ -173,10 +190,11 @@ func iUseAToLongIntentMessage() error {
 }
 
 func theOutputShouldExplainIntentPolicy() error {
-	// We haven't implemented specific intent length check different from generic?
-	// handleSend has 100 char limit.
 	if lastError == nil {
 		return fmt.Errorf("expected intent to fail")
+	}
+	if !strings.Contains(lastOutput, "short") || !strings.Contains(lastOutput, "intent") {
+		return fmt.Errorf("expected output to explain intents should be short, but got: %s", lastOutput)
 	}
 	return nil
 }
@@ -195,8 +213,9 @@ func iRunTheNdReceiveCommandWithNothing() error {
 }
 
 func theOutputShouldExplainTimeoutMechanics() error {
-	// nd receive doesn't explain timeout mechanics in output.
-	// This step seems to expect a tutorial message?
+	if !strings.Contains(lastOutput, "timeout") {
+		return fmt.Errorf("expected output to explain timeout mechanics, but got: %s", lastOutput)
+	}
 	return nil
 }
 

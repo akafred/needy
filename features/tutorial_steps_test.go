@@ -94,13 +94,19 @@ func agentRunsWithIdReplacement(agent, command string) error {
 }
 
 func allThreeAgentsShouldBeRegisteredSuccessfully() error {
-	// Assuming registration steps passed (which check for success)
-	// We could verify files exist
+	for _, agent := range []string{"AgentAlice", "AgentBob", "AgentCharlie"} {
+		idFile := fmt.Sprintf(".needy-client-id.%s", agent)
+		if _, err := os.Stat(idFile); err != nil {
+			return fmt.Errorf("expected ID file for %s to exist, but it doesn't", agent)
+		}
+	}
 	return nil
 }
 
 func theMessageShouldBeBroadcastToAllAgents() error {
-	// NATS handles this, verified by subsequent receive steps
+	if !strings.Contains(lastOutput, "Sent need successfully") {
+		return fmt.Errorf("expected send to succeed, but got: %s", lastOutput)
+	}
 	return nil
 }
 
@@ -143,14 +149,16 @@ func agentBobShouldSee(expectedText string) error {
 }
 
 func theIntentShouldBeLinkedToTheNeed() error {
-	// Verify output mentions the linkage or just rely on success
-	// The CLI output for 'nd send intent' is just "Sent intent successfully"
-	// We can trust the server validation (Intent must precede solution) will catch issues later
+	if !strings.Contains(lastOutput, "Sent intent successfully") {
+		return fmt.Errorf("expected intent to be sent successfully, but got: %s", lastOutput)
+	}
 	return nil
 }
 
 func theSolutionShouldBeLinkedToTheNeed() error {
-	// Similarly, verify success
+	if !strings.Contains(lastOutput, "Sent solution successfully") {
+		return fmt.Errorf("expected solution to be sent successfully, but got: %s", lastOutput)
+	}
 	return nil
 }
 
@@ -216,5 +224,14 @@ func agentCharlieShouldSeeTheSameNeedIntentAndSolution() error {
 }
 
 func allAgentsHaveAConsistentViewOfTheConversation() error {
+	if !strings.Contains(lastOutput, "NEED from AgentAlice") {
+		return fmt.Errorf("expected consistent view with need, but got: %s", lastOutput)
+	}
+	if !strings.Contains(lastOutput, "INTENT from AgentBob") {
+		return fmt.Errorf("expected consistent view with intent, but got: %s", lastOutput)
+	}
+	if !strings.Contains(lastOutput, "SOLUTION from AgentBob") {
+		return fmt.Errorf("expected consistent view with solution, but got: %s", lastOutput)
+	}
 	return nil
 }

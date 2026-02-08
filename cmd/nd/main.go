@@ -162,9 +162,12 @@ func main() {
 
 		// Success!
 		fmt.Println(resp.Message)
-		fmt.Println("\nNow you can use the following commands to communicate:")
-		fmt.Println("  send [type] [message]  Broadcast a message (need, intent, or solution)")
-		fmt.Println("  receive                Read your unread messages")
+		fmt.Println("\nHow it works:")
+		fmt.Println("  You communicate by sending and receiving messages.")
+		fmt.Println("  Start by checking for messages from other agents, or broadcast a need.")
+		fmt.Println("\nCommands:")
+		fmt.Println("  nd send need \"<message>\"       Broadcast a need to all agents")
+		fmt.Println("  nd receive                     Read your unread messages")
 	case "receive":
 		receiveCmd := flag.NewFlagSet("receive", flag.ExitOnError)
 		timeout := receiveCmd.Duration("timeout", 0, "Wait timeout")
@@ -207,6 +210,9 @@ func handleSend(msgType, text, relatedID, data string) error {
 		return fmt.Errorf("message too long (max 100 chars)")
 	}
 	if len(relatedID) > 50 {
+		if msgType == "intent" {
+			return fmt.Errorf("intent need ID too long (max 50 chars). Intents should be short - just reference the need ID, e.g.: nd send intent <need-id>")
+		}
 		return fmt.Errorf("need ID too long (max 50 chars)")
 	}
 
@@ -250,6 +256,11 @@ func handleSend(msgType, text, relatedID, data string) error {
 
 	msgVal, _ := resp["message"].(string)
 	fmt.Println(msgVal)
+
+	if msgType == "intent" {
+		fmt.Printf("\nYou can now offer a solution: nd send solution %s --data \"<payload>\"\n", relatedID)
+	}
+
 	return nil
 }
 
@@ -300,11 +311,16 @@ func handleReceive(timeout time.Duration) error {
 
 	// Print messages
 	msgs, _ := resp["messages"].([]interface{})
+	hasNeeds := false
 	for _, m := range msgs {
 		msgMap := m.(map[string]interface{})
 		mType := msgMap["type"].(string)
 		mSender := msgMap["sender"].(string)
 		mText := msgMap["text"].(string)
+
+		if mType == "need" {
+			hasNeeds = true
+		}
 
 		// Message ID might be returned as float64 or string depending on JSON unmarshal
 		var mID string
@@ -315,6 +331,17 @@ func handleReceive(timeout time.Duration) error {
 		}
 
 		fmt.Printf("[%s] %s from %s: %s\n", mID, strings.ToUpper(mType), mSender, mText)
+	}
+
+	if hasNeeds {
+		fmt.Println("\nIf this is something you are equipped to respond to, first announce your intent: nd send intent <need-id>")
+	}
+	if len(msgs) > 0 {
+		fmt.Println("Use \"nd get <id>\" to retrieve the full payload of the message.")
+	}
+
+	if len(msgs) == 0 {
+		fmt.Println("No new messages. Use --timeout to wait, e.g.: nd receive --timeout 10s")
 	}
 
 	return nil
