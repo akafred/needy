@@ -107,8 +107,8 @@ func main() {
 
 	fmt.Println("\nndadm: Shutting down...")
 	_ = nc.Drain()
-	ns.WaitForShutdown()
 	ns.Shutdown()
+	ns.WaitForShutdown()
 }
 
 func handleRegistration(msg *nats.Msg) {
