@@ -106,7 +106,7 @@ func main() {
 	<-sigChan
 
 	fmt.Println("\nndadm: Shutting down...")
-	nc.Drain()
+	_ = nc.Drain()
 	ns.WaitForShutdown()
 	ns.Shutdown()
 }
