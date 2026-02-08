@@ -4,7 +4,7 @@ project_name: needy
 builds:
   - id: nd
     binary: nd
-    main: ./cmd/nd/main.go
+    main: ./cmd/nd
     goos:
       - linux
       - darwin
@@ -17,7 +17,7 @@ builds:
 
   - id: ndadm
     binary: ndadm
-    main: ./cmd/ndadm/main.go
+    main: ./cmd/ndadm
     goos:
       - linux
       - darwin
