@@ -228,9 +228,12 @@ func handleRead(nc *nats.Conn, msg *nats.Msg) {
 		return
 	}
 
-	// Fetch messages
-	msgs, _ := sub.Fetch(10, nats.MaxWait(100*1000000)) // 100ms default
-	// We could use the timeout from request if we want blocking
+	// Fetch messages, using timeout from request if provided
+	waitDuration := 100 * time.Millisecond
+	if timeoutMs, ok := req["timeout_ms"].(float64); ok && timeoutMs > 0 {
+		waitDuration = time.Duration(timeoutMs) * time.Millisecond
+	}
+	msgs, _ := sub.Fetch(10, nats.MaxWait(waitDuration))
 
 	responseMsgs := []map[string]interface{}{}
 

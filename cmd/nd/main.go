@@ -350,7 +350,11 @@ func handleReceive(timeout time.Duration) error {
 	}
 
 	if len(msgs) == 0 {
-		fmt.Println("No new messages. Use --timeout to wait, e.g.: nd receive --timeout 10s")
+		if timeout > 0 {
+			fmt.Println("No new messages.")
+		} else {
+			fmt.Println("No new messages. Use --timeout to wait, e.g.: nd receive --timeout 10s")
+		}
 	}
 
 	return nil
