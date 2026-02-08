@@ -36,9 +36,8 @@ func runCmd(path string, args ...string) error {
 }
 
 func startNdadmServer() {
-	// Aggressively kill any existing ndadm or process on 4222
-	_ = exec.Command("pkill", "ndadm").Run()
-	_ = exec.Command("sh", "-c", "lsof -ti :4222 | xargs kill -9").Run()
+	// Stop our own test server if still running from a previous scenario
+	stopNdadmServer()
 
 	// Wait for port to be free
 	waitForPortFree(4222)
