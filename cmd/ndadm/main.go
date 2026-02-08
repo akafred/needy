@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -14,11 +16,41 @@ import (
 )
 
 const (
-	natsPort         = 4222
+	configFile       = ".needy.conf"
+	defaultPort      = 4222
 	registrationSubj = "needy.register"
 	messageStream    = "MESSAGES"
 	messageSubj      = "needy.messages"
 )
+
+func readConfig() map[string]string {
+	cfg := map[string]string{}
+	f, err := os.Open(configFile)
+	if err != nil {
+		return cfg
+	}
+	defer func() { _ = f.Close() }()
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		if k, v, ok := strings.Cut(line, "="); ok {
+			cfg[strings.TrimSpace(k)] = strings.TrimSpace(v)
+		}
+	}
+	return cfg
+}
+
+func getPort() int {
+	cfg := readConfig()
+	port := defaultPort
+	if p, ok := cfg["port"]; ok {
+		_, _ = fmt.Sscanf(p, "%d", &port)
+	}
+	return port
+}
 
 type RegistrationRequest struct {
 	AgentName string `json:"agent_name"`
@@ -35,6 +67,8 @@ type RegistrationResponse struct {
 var registry = NewRegistry()
 
 func main() {
+	natsPort := getPort()
+
 	// Start embedded NATS server with JetStream
 	opts := &server.Options{
 		Host:      "127.0.0.1",

@@ -35,10 +35,12 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 
 	// Cleanup before each scenario
 	sc.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
-		// Clean up client ID files
-		files, _ := filepath.Glob(".needy-client-id*")
-		for _, f := range files {
-			_ = os.Remove(f)
+		// Clean up config files (and legacy client ID files)
+		for _, pattern := range []string{".needy.conf*", ".needy-client-id*"} {
+			files, _ := filepath.Glob(pattern)
+			for _, f := range files {
+				_ = os.Remove(f)
+			}
 		}
 		// Clean up .nats-data with retries
 		for i := 0; i < 10; i++ {

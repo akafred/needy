@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -13,10 +14,47 @@ import (
 )
 
 const (
-	clientIDFile     = ".needy-client-id"
-	natsURL          = "nats://127.0.0.1:4222"
+	configFile       = ".needy.conf"
+	defaultPort      = 4222
 	registrationSubj = "needy.register"
 )
+
+func readConfig() map[string]string {
+	cfg := map[string]string{}
+	f, err := os.Open(configFile)
+	if err != nil {
+		return cfg
+	}
+	defer func() { _ = f.Close() }()
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		if k, v, ok := strings.Cut(line, "="); ok {
+			cfg[strings.TrimSpace(k)] = strings.TrimSpace(v)
+		}
+	}
+	return cfg
+}
+
+func writeConfig(cfg map[string]string) error {
+	var lines []string
+	for k, v := range cfg {
+		lines = append(lines, fmt.Sprintf("%s=%s", k, v))
+	}
+	return os.WriteFile(configFile, []byte(strings.Join(lines, "\n")+"\n"), 0600)
+}
+
+func getNatsURL() string {
+	cfg := readConfig()
+	port := defaultPort
+	if p, ok := cfg["port"]; ok {
+		_, _ = fmt.Sscanf(p, "%d", &port)
+	}
+	return fmt.Sprintf("nats://127.0.0.1:%d", port)
+}
 
 type RegistrationRequest struct {
 	AgentName string `json:"agent_name"`
@@ -127,7 +165,7 @@ func main() {
 		}
 
 		// Connect to NATS
-		nc, err := nats.Connect(natsURL, nats.Timeout(5*time.Second))
+		nc, err := nats.Connect(getNatsURL(), nats.Timeout(5*time.Second))
 		if err != nil {
 			fmt.Println("Error: Could not connect to network")
 			fmt.Printf("(Details: %v)\n", err)
@@ -225,7 +263,7 @@ func handleSend(msgType, text, relatedID, data string) error {
 		return fmt.Errorf("need ID too long (max 50 chars)")
 	}
 
-	nc, err := nats.Connect(natsURL, nats.Timeout(5*time.Second))
+	nc, err := nats.Connect(getNatsURL(), nats.Timeout(5*time.Second))
 	if err != nil {
 		return fmt.Errorf("could not connect to network: %w", err)
 	}
@@ -279,7 +317,7 @@ func handleReceive(timeout time.Duration) error {
 		return fmt.Errorf("failed to get client ID: %w", err)
 	}
 
-	nc, err := nats.Connect(natsURL, nats.Timeout(5*time.Second))
+	nc, err := nats.Connect(getNatsURL(), nats.Timeout(5*time.Second))
 	if err != nil {
 		return fmt.Errorf("could not connect to network: %w", err)
 	}
@@ -353,7 +391,7 @@ func handleReceive(timeout time.Duration) error {
 		if timeout > 0 {
 			fmt.Println("No new messages.")
 		} else {
-			fmt.Println("No new messages. Use --timeout to wait, e.g.: nd receive --timeout 10s")
+			fmt.Println("No new messages. Use --timeout to wait, e.g.: nd receive --timeout 180s")
 		}
 	}
 
@@ -366,7 +404,7 @@ func handleGet(msgID string) error {
 		return fmt.Errorf("failed to get client ID: %w", err)
 	}
 
-	nc, err := nats.Connect(natsURL, nats.Timeout(5*time.Second))
+	nc, err := nats.Connect(getNatsURL(), nats.Timeout(5*time.Second))
 	if err != nil {
 		return fmt.Errorf("could not connect to network: %w", err)
 	}
@@ -409,24 +447,15 @@ func handleGet(msgID string) error {
 
 // getOrCreateClientID returns the client ID, whether this is a re-registration, and any error
 func getOrCreateClientID() (string, bool, error) {
-	// Try to read existing client ID
-	data, err := os.ReadFile(clientIDFile)
-	if err == nil {
-		// File exists, this is a re-registration
-		return strings.TrimSpace(string(data)), true, nil
-	}
-
-	// File doesn't exist, generate new client ID
-	if !os.IsNotExist(err) {
-		return "", false, fmt.Errorf("failed to read client ID file: %w", err)
+	cfg := readConfig()
+	if id, ok := cfg["client-id"]; ok && id != "" {
+		return id, true, nil
 	}
 
 	// Generate new UUID
 	newID := uuid.New().String()
-
-	// Save to file
-	err = os.WriteFile(clientIDFile, []byte(newID), 0600)
-	if err != nil {
+	cfg["client-id"] = newID
+	if err := writeConfig(cfg); err != nil {
 		return "", false, fmt.Errorf("failed to save client ID: %w", err)
 	}
 

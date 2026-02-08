@@ -137,8 +137,8 @@ func thereIsANeedMessageToReceive() error {
 	}
 
 	// Register a helper agent to send the need
-	_ = os.Rename(".needy-client-id", ".needy-client-id.DiscoveryAgent")
-	_ = os.Remove(".needy-client-id")
+	_ = os.Rename(".needy.conf", ".needy.conf.DiscoveryAgent")
+	writeTestConfig() // fresh config with port only (no client-id)
 	_ = runCmd("../bin/nd", "register", "--name", "HelperAgent")
 	if lastError != nil {
 		return fmt.Errorf("failed to register helper: %s", lastOutput)
@@ -151,8 +151,8 @@ func thereIsANeedMessageToReceive() error {
 	}
 
 	// Switch back to DiscoveryAgent so nd receive will see the unread need
-	_ = os.Remove(".needy-client-id")
-	return os.Rename(".needy-client-id.DiscoveryAgent", ".needy-client-id")
+	_ = os.Remove(".needy.conf")
+	return os.Rename(".needy.conf.DiscoveryAgent", ".needy.conf")
 }
 
 func iHaveIssuedAIntentMessage() error {
@@ -223,21 +223,21 @@ func theOutputShouldExplainTimeoutMechanics() error {
 
 func agentRunsCommand(agentName, command string) error {
 	// Swap identity
-	targetIDFile := fmt.Sprintf(".needy-client-id.%s", agentName)
-	if _, err := os.Stat(targetIDFile); err != nil {
+	targetConfFile := fmt.Sprintf(".needy.conf.%s", agentName)
+	if _, err := os.Stat(targetConfFile); err != nil {
 		return fmt.Errorf("identity for agent %s not found (did you register them?)", agentName)
 	}
 
-	// Backup current ID
-	if _, err := os.Stat(".needy-client-id"); err == nil {
-		_ = os.Rename(".needy-client-id", ".needy-client-id.bak")
-		defer func() { _ = os.Rename(".needy-client-id.bak", ".needy-client-id") }()
+	// Backup current config
+	if _, err := os.Stat(".needy.conf"); err == nil {
+		_ = os.Rename(".needy.conf", ".needy.conf.bak")
+		defer func() { _ = os.Rename(".needy.conf.bak", ".needy.conf") }()
 	}
 
-	// Copy target ID
-	input, _ := os.ReadFile(targetIDFile)
-	_ = os.WriteFile(".needy-client-id", input, 0600)
-	defer func() { _ = os.Remove(".needy-client-id") }()
+	// Copy target config
+	input, _ := os.ReadFile(targetConfFile)
+	_ = os.WriteFile(".needy.conf", input, 0600)
+	defer func() { _ = os.Remove(".needy.conf") }()
 
 	// Execute
 	fullCmd := strings.Replace(command, "nd ", "../bin/nd ", 1)
@@ -287,33 +287,33 @@ func iAmRegisteredAs(name string) error {
 }
 
 func anotherAgentIsRegistered(name string) error {
-	if _, err := os.Stat(".needy-client-id"); err == nil {
-		_ = os.Rename(".needy-client-id", ".needy-client-id.primary")
+	if _, err := os.Stat(".needy.conf"); err == nil {
+		_ = os.Rename(".needy.conf", ".needy.conf.primary")
 	}
 	defer func() {
-		if _, err := os.Stat(".needy-client-id.primary"); err == nil {
-			_ = os.Rename(".needy-client-id.primary", ".needy-client-id")
+		if _, err := os.Stat(".needy.conf.primary"); err == nil {
+			_ = os.Rename(".needy.conf.primary", ".needy.conf")
 		}
 	}()
 
-	_ = os.Remove(".needy-client-id")
+	writeTestConfig() // fresh config with port only (no client-id)
 
 	cmd := exec.Command("../bin/nd", "register", "--name", name)
 	if output, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("failed to register other agent: %s: %w", output, err)
 	}
 
-	if err := os.Rename(".needy-client-id", fmt.Sprintf(".needy-client-id.%s", name)); err != nil {
-		return fmt.Errorf("failed to save other agent ID: %w", err)
+	if err := os.Rename(".needy.conf", fmt.Sprintf(".needy.conf.%s", name)); err != nil {
+		return fmt.Errorf("failed to save other agent config: %w", err)
 	}
 
 	return nil
 }
 
 func aRegisteredAgent(name string) error {
-	// Check if already registered (ID file exists for this name)?
-	targetIDFile := fmt.Sprintf(".needy-client-id.%s", name)
-	if _, err := os.Stat(targetIDFile); err == nil {
+	// Check if already registered (config file exists for this name)?
+	targetConfFile := fmt.Sprintf(".needy.conf.%s", name)
+	if _, err := os.Stat(targetConfFile); err == nil {
 		// Already registered
 		return nil
 	}

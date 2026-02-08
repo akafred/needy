@@ -85,8 +85,16 @@ func isAlreadyRegisteredFromDifferentClient(agentName string) error {
 		return fmt.Errorf("failed to register agent initially: %v", err)
 	}
 
-	differentClientID := "00000000-0000-0000-0000-000000000000"
-	_ = os.WriteFile(".needy-client-id", []byte(differentClientID), 0600)
+	// Overwrite client-id in config with a different UUID
+	cfg := map[string]string{
+		"port":      fmt.Sprintf("%d", testPort),
+		"client-id": "00000000-0000-0000-0000-000000000000",
+	}
+	var lines []string
+	for k, v := range cfg {
+		lines = append(lines, fmt.Sprintf("%s=%s", k, v))
+	}
+	_ = os.WriteFile(".needy.conf", []byte(strings.Join(lines, "\n")+"\n"), 0600)
 
 	return nil
 }

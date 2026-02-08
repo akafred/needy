@@ -21,6 +21,8 @@ var lastError error
 var ndadmCmd *exec.Cmd
 var networkDown bool
 
+const testPort = 14222
+
 // Shared helper functions
 
 func runCmd(path string, args ...string) error {
@@ -35,12 +37,19 @@ func runCmd(path string, args ...string) error {
 	return nil
 }
 
+func writeTestConfig() {
+	_ = os.WriteFile(".needy.conf", []byte(fmt.Sprintf("port=%d\n", testPort)), 0600)
+}
+
 func startNdadmServer() {
 	// Stop our own test server if still running from a previous scenario
 	stopNdadmServer()
 
+	// Write config so ndadm uses test port
+	writeTestConfig()
+
 	// Wait for port to be free
-	waitForPortFree(4222)
+	waitForPortFree(testPort)
 
 	cmd := exec.Command("../bin/ndadm")
 
@@ -67,7 +76,7 @@ func startNdadmServer() {
 }
 
 func waitForNATS() {
-	url := "nats://127.0.0.1:4222"
+	url := fmt.Sprintf("nats://127.0.0.1:%d", testPort)
 	timeout := 5 * time.Second
 	start := time.Now()
 

@@ -49,14 +49,14 @@ func InitializeTutorialSteps(ctx *godog.ScenarioContext) {
 func agentRegistersWith(agent, command string) error {
 	agentName := "Agent" + agent
 
-	// Backup existing ID globally if present
-	if _, err := os.Stat(".needy-client-id"); err == nil {
-		_ = os.Rename(".needy-client-id", ".needy-client-id.bak")
-		defer func() { _ = os.Rename(".needy-client-id.bak", ".needy-client-id") }()
+	// Backup existing config if present
+	if _, err := os.Stat(".needy.conf"); err == nil {
+		_ = os.Rename(".needy.conf", ".needy.conf.bak")
+		defer func() { _ = os.Rename(".needy.conf.bak", ".needy.conf") }()
 	}
 
-	// Clean slate for new registration
-	_ = os.Remove(".needy-client-id")
+	// Clean slate for new registration (fresh config with port only)
+	writeTestConfig()
 
 	// Run command via runCmd (assuming no tricky quotes in register command)
 	fullCmd := strings.Replace(command, "nd ", "../bin/nd ", 1)
@@ -69,11 +69,11 @@ func agentRegistersWith(agent, command string) error {
 		return err
 	}
 
-	// Save new ID for this agent
-	if _, err := os.Stat(".needy-client-id"); err == nil {
-		_ = os.Rename(".needy-client-id", fmt.Sprintf(".needy-client-id.%s", agentName))
+	// Save config (with client-id) for this agent
+	if _, err := os.Stat(".needy.conf"); err == nil {
+		_ = os.Rename(".needy.conf", fmt.Sprintf(".needy.conf.%s", agentName))
 	} else {
-		return fmt.Errorf("registration seemed to fail, no .needy-client-id file created")
+		return fmt.Errorf("registration seemed to fail, no .needy.conf file created")
 	}
 
 	return nil
@@ -95,9 +95,9 @@ func agentRunsWithIdReplacement(agent, command string) error {
 
 func allThreeAgentsShouldBeRegisteredSuccessfully() error {
 	for _, agent := range []string{"AgentAlice", "AgentBob", "AgentCharlie"} {
-		idFile := fmt.Sprintf(".needy-client-id.%s", agent)
-		if _, err := os.Stat(idFile); err != nil {
-			return fmt.Errorf("expected ID file for %s to exist, but it doesn't", agent)
+		confFile := fmt.Sprintf(".needy.conf.%s", agent)
+		if _, err := os.Stat(confFile); err != nil {
+			return fmt.Errorf("expected config file for %s to exist, but it doesn't", agent)
 		}
 	}
 	return nil
