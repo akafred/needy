@@ -194,6 +194,15 @@ func main() {
 			os.Exit(1)
 		}
 
+	case "help", "--help", "-h":
+		fmt.Println("Needy (nd) - Agent Communication Client")
+		fmt.Println("Usage: nd [command]")
+		fmt.Println("\nCommands:")
+		fmt.Println("  register  Register on the network (Usage: nd register --name [name])")
+		fmt.Println("  send      Send a message (need, intent, or solution)")
+		fmt.Println("  receive   Read your unread messages")
+		fmt.Println("  get       Retrieve the full payload of a message")
+		fmt.Println("\nRegistration is required before using other commands.")
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}
@@ -207,7 +216,7 @@ func handleSend(msgType, text, relatedID, data string) error {
 
 	// Basic validation
 	if len(text) > 100 {
-		return fmt.Errorf("message too long (max 100 chars)")
+		return fmt.Errorf("message too long (max 100 chars). Use a short message and put details in --data, e.g.: nd send %s \"<short message>\" --data \"<full details>\"", msgType)
 	}
 	if len(relatedID) > 50 {
 		if msgType == "intent" {

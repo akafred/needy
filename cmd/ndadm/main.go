@@ -106,6 +106,8 @@ func main() {
 	<-sigChan
 
 	fmt.Println("\nndadm: Shutting down...")
+	nc.Drain()
+	ns.WaitForShutdown()
 	ns.Shutdown()
 }
 
@@ -143,7 +145,7 @@ func handleSend(nc *nats.Conn, msg *nats.Msg) {
 	clientID, _ := req["client_id"].(string)
 	agentName := registry.GetAgentName(clientID)
 	if agentName == "" {
-		_ = msg.Respond([]byte(`{"success": false, "message": "Unauthorized: Unknown client ID"}`))
+		_ = msg.Respond([]byte(`{"success": false, "message": "Not registered. Please register first: nd register --name <your-name>"}`))
 		return
 	}
 
@@ -206,7 +208,7 @@ func handleRead(nc *nats.Conn, msg *nats.Msg) {
 	clientID, _ := req["client_id"].(string)
 	agentName := registry.GetAgentName(clientID)
 	if agentName == "" {
-		_ = msg.Respond([]byte(`{"success": false, "message": "Unauthorized"}`))
+		_ = msg.Respond([]byte(`{"success": false, "message": "Not registered. Please register first: nd register --name <your-name>"}`))
 		return
 	}
 
@@ -273,7 +275,7 @@ func handleGet(nc *nats.Conn, msg *nats.Msg) {
 	clientID, _ := req["client_id"].(string)
 	agentName := registry.GetAgentName(clientID)
 	if agentName == "" {
-		_ = msg.Respond([]byte(`{"success": false, "message": "Unauthorized"}`))
+		_ = msg.Respond([]byte(`{"success": false, "message": "Not registered. Please register first: nd register --name <your-name>"}`))
 		return
 	}
 
